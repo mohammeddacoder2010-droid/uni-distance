@@ -18,13 +18,42 @@ tables = soup.find_all("table")
 
 print(f"Found {len(tables)} tables")
 
-# Tables 0, 1 and 2 contain the universities
-university_tables = tables[:3]
+university_types = [
+    "State-funded",
+    "National",
+    "Private"
+]
 
-for table in university_tables:
-    rows = table.find_all("tr")
+with open("universities.csv", "w", newline="", encoding="utf-8") as file:
 
-    for row in rows:
-        cells = row.find_all(["th", "td"])
+    writer = csv.writer(file)
 
-        print([cell.get_text(" ", strip=True) for cell in cells])
+    writer.writerow([
+        "name",
+        "abbreviation",
+        "year_established",
+        "type"
+    ])
+
+    for table, university_type in zip(tables[:3], university_types):
+
+        rows = table.find_all("tr")
+
+        for row in rows[1:]:
+
+            cells = row.find_all("td")
+
+            if len(cells) >= 3:
+
+                name = cells[0].get_text(" ", strip=True)
+                abbreviation = cells[1].get_text(" ", strip=True)
+                year = cells[2].get_text(" ", strip=True)
+
+                writer.writerow([
+                    name,
+                    abbreviation,
+                    year,
+                    university_type
+                ])
+
+print("universities.csv created successfully!")
